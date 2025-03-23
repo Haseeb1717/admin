@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --text-color: #2b2d42;
+            --bg-color: #f8f9fa;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all var(--transition-speed) ease;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 20px;
+            background: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform var(--transition-speed);
+        }
+
+        .sidebar.collapsed .sidebar-toggle {
+            transform: rotate(180deg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            min-width: 40px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity var(--transition-speed);
+        }
+
+        .sidebar.collapsed .logo span {
+            opacity: 0;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all var(--transition-speed);
+            overflow: hidden;
+        }
+
+        .nav-menu a i {
+            min-width: 24px;
+            font-size: 1.1rem;
+        }
+
+        .nav-menu a span {
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity var(--transition-speed);
+        }
+
+        .sidebar.collapsed .nav-menu a span {
+            opacity: 0;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            transition: margin-left var(--transition-speed);
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-left: 2.5rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dashboard Grid Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .stats-card:hover .card-icon {
+            transform: scale(1.1);
+        }
+
+        .card-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .change.positive {
+            color: #2ecc71;
+        }
+
+        .change.negative {
+            color: #e74c3c;
+        }
+
+        /* Chart Card */
+        .chart-card {
+            grid-column: span 3;
+            height: 400px;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        /* Orders Card */
+        .orders-card {
+            grid-column: span 2;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #666;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status.completed {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        .status.pending {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: #f1c40f;
+        }
+
+        .status.processing {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        /* Timeline Card */
+        .timeline-card {
+            grid-column: 3;
+        }
+
+        .timeline {
+            margin-top: 1rem;
+        }
+
+        .timeline-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            transform: translateY(-50%);
+        }
+
+        .time {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .content h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .content p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-card {
+                grid-column: span 2;
+            }
+            
+            .orders-card {
+                grid-column: span 2;
+            }
+            
+            .timeline-card {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .main-content.expanded {
+                margin-left: 0;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card,
+            .orders-card,
+            .timeline-card {
+                grid-column: span 1;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: var(--primary-color);
+                color: white;
+                padding: 0.5rem;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="logo">
+                <i class="fas fa-bolt"></i>
+                <span>DashPro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="user-info">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="profile">
+                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=4361ee&color=fff" alt="Profile">
+                        <span>John Doe</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Stats Cards -->
+                <div class="card stats-card">
+                    <div class="card-icon" style="background-color: #4361ee;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Total Users</h3>
+                        <p class="number">1,234</p>
+                        <p class="change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            12% from last month
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card stats-card">
+                    <div class="card-icon" style="background-color: #2ecc71;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Total Sales</h3>
+                        <p class="number">$45,678</p>
+                        <p class="change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            8% from last month
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card stats-card">
+                    <div class="card-icon" style="background-color: #3498db;">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Products</h3>
+                        <p class="number">892</p>
+                        <p class="change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            3% from last month
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chart Card -->
+                <div class="card chart-card">
+                    <h3>Revenue Overview</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="card orders-card">
+                    <h3>Recent Orders</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#12345</td>
+                                    <td>Sarah Johnson</td>
+                                    <td>Premium Package</td>
+                                    <td>$299.99</td>
+                                    <td><span class="status completed">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#12346</td>
+                                    <td>Mike Smith</td>
+                                    <td>Basic Package</td>
+                                    <td>$99.99</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#12347</td>
+                                    <td>Emily Davis</td>
+                                    <td>Pro Package</td>
+                                    <td>$199.99</td>
+                                    <td><span class="status processing">Processing</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="card timeline-card">
+                    <h3>Recent Activity</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="time">2 hours ago</div>
+                            <div class="content">
+                                <h4>New user registered</h4>
+                                <p>John Smith created an account</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="time">5 hours ago</div>
+                            <div class="content">
+                                <h4>New order received</h4>
+                                <p>Order #12348 from Sarah Johnson</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="time">1 day ago</div>
+                            <div class="content">
+                                <h4>System Update</h4>
+                                <p>Successfully updated to version 2.0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar Toggle
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+
+            // Chart Configuration
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [30000, 35000, 32000, 40000, 38000, 45000],
+                        borderColor: '#4361ee',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                borderDash: [5, 5]
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Mobile Menu
+            const createMobileMenu = () => {
+                const mobileToggle = document.createElement('div');
+                mobileToggle.className = 'mobile-menu-toggle';
+                mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                document.body.appendChild(mobileToggle);
+
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-active');
+                });
+            };
+
+            // Create mobile menu if screen width is less than 768px
+            if (window.innerWidth < 768) {
+                createMobileMenu();
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth < 768) {
+                    if (!document.querySelector('.mobile-menu-toggle')) {
+                        createMobileMenu();
+                    }
+                } else {
+                    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+                    if (mobileToggle) {
+                        mobileToggle.remove();
+                    }
+                    sidebar.classList.remove('mobile-active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
